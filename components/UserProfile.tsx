@@ -2,6 +2,8 @@
 
 import { signOut } from '@/app/actions/auth'
 import { useState } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
 
 interface UserProfileProps {
   user: {
@@ -49,9 +51,11 @@ export default function UserProfile({ user, profile }: UserProfileProps) {
         <div className="flex justify-center">
           <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
             {avatarUrl ? (
-              <img
+              <Image
                 src={avatarUrl}
                 alt="プロフィール"
+                width={80}
+                height={80}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -118,12 +122,12 @@ export default function UserProfile({ user, profile }: UserProfileProps) {
         </button>
 
         <div className="text-center">
-          <a
+          <Link
             href="/"
             className="text-sm text-blue-600 hover:text-blue-500"
           >
             ホームに戻る
-          </a>
+          </Link>
         </div>
       </div>
 
