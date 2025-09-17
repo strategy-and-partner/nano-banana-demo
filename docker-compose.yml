@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  nextjs-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    container_name: nextjs-mvp-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount the entire app directory for hot reload
+      - ./:/app
+      # Use anonymous volumes to prevent node_modules from being overwritten
+      - /app/node_modules
+      - /app/.next
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+    command: npm run dev
+    networks:
+      - mvp-network
+
+  nextjs-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: nextjs-mvp-prod
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=production
+    networks:
+      - mvp-network
+    profiles:
+      - production
+
+networks:
+  mvp-network:
+    driver: bridge
