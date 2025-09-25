@@ -1,29 +1,39 @@
 'use server'
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Chat } from "@google/genai";
 
 interface ImageData {
   mimeType: string;
   data: string;
 }
 
-interface ChatSessionData {
-  sessionId?: string;
-  history: any[];
+const chatSessions: Map<string, Chat> = new Map();
+
+const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
+
+if (!apiKey) {
+  throw new Error('Gemini API key is not configured');
 }
 
-export async function generateImage(prompt: string, images?: ImageData[]) {
+const ai = new GoogleGenAI({
+  apiKey: apiKey
+});
+
+export async function createChatSession(): Promise<string> {
+  const chat = ai.chats.create({
+    model: "gemini-2.5-flash-image-preview",
+  });
+  const sessionId = crypto.randomUUID();
+  chatSessions.set(sessionId, chat);
+  return sessionId;
+}
+
+export async function generateImage(sessionId: string, prompt: string, images?: ImageData[]) {
   try {
-    const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
-
-    if (!apiKey) {
-      throw new Error('Gemini API key is not configured');
+    const chat = chatSessions.get(sessionId);
+    if (!chat) {
+      throw new Error('Invalid chat session ID');
     }
-
-    const ai = new GoogleGenAI({
-      apiKey: apiKey
-    });
-
     // Build the contents array
     let contents: any = [];
 
@@ -49,10 +59,7 @@ export async function generateImage(prompt: string, images?: ImageData[]) {
       contents = prompt;
     }
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-image-preview",
-      contents: contents,
-    });
+    const response = await chat.sendMessage({ message: contents });
 
     const result = {
       text: null as string | null,

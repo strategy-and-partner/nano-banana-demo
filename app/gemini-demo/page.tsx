@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react';
-import { generateImage } from '@/app/actions/gemini';
+import { useState, useEffect } from 'react';
+import { generateImage, createChatSession } from '@/app/actions/gemini';
 
 interface UploadedImage {
   file: File;
@@ -28,6 +28,21 @@ export default function GeminiDemo() {
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const initializeSession = async () => {
+      try {
+        const newSessionId = await createChatSession();
+        setSessionId(newSessionId);
+      } catch (err) {
+        console.error('Failed to create chat session:', err);
+        setError('チャットセッションの初期化に失敗しました');
+      }
+    };
+
+    initializeSession();
+  }, []);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -74,6 +89,11 @@ export default function GeminiDemo() {
       return;
     }
 
+    if (!sessionId) {
+      setError('チャットセッションが初期化されていません');
+      return;
+    }
+
     // Add user message to chat
     const userMessage: ChatMessage = {
       role: 'user',
@@ -92,6 +112,7 @@ export default function GeminiDemo() {
       }));
 
       const response = await generateImage(
+        sessionId,
         prompt,
         imageData.length > 0 ? imageData : undefined
       );
