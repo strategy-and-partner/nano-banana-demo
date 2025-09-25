@@ -1,89 +1,89 @@
-# Next.js + Supabase MVP デモプロジェクト
+# Nano Banana Demo プロジェクト仕様書
 
-## 🎯 プロジェクト概要
-このプロジェクトは、Next.js 15とSupabaseを使用した本番環境対応のMVPテンプレートです。エンタープライズグレードのセキュリティと2025年のベストプラクティスに基づいて構築されています。
+## プロジェクト概要
+Next.js 15とSupabaseを使用した認証機能付きMVPテンプレートプロジェクトです。
+最新のWeb開発技術スタックとエンタープライズグレードのセキュリティを採用しています。
 
-## 📦 技術スタック
+## 技術スタック
 
 ### フロントエンド
-- **Next.js 15.5.3** - App Router使用、Turbopack対応
-- **React 19.1.0** - 最新の安定版
-- **TypeScript 5** - 型安全性の確保
-- **Tailwind CSS v4** - モダンなスタイリング
+- **Next.js 15.5.3** - App Routerを採用した最新版React フレームワーク
+- **React 19.1.0** - ユーザーインターフェース構築ライブラリ
+- **Tailwind CSS v4** - ユーティリティファーストのCSSフレームワーク
+- **TypeScript 5** - 型安全な JavaScript スーパーセット
 
-### バックエンド/認証
-- **Supabase** - 認証とデータベース
-  - Cookie-based認証
-  - Row Level Security (RLS)
+### バックエンド/インフラ
+- **Supabase** - 認証とデータベース管理を提供するBaaS
   - PostgreSQLデータベース
+  - Row Level Security (RLS)による高度なアクセス制御
+  - リアルタイム機能対応
+- **Docker** - コンテナ化による環境の一貫性確保
 
-### 開発環境
-- **Docker** - コンテナ化対応
-- **ESLint** - コード品質チェック
-- **npm** - パッケージ管理
+## 主要機能
 
-## 🏗️ プロジェクト構造
+### 1. 認証システム
+- **ユーザー登録** (`/auth/signup`)
+  - メールアドレスとパスワードによる新規登録
+  - メール確認によるアカウント有効化
+
+- **ログイン** (`/auth/login`)
+  - セッションベース認証
+  - クッキーを使用した安全な認証状態管理
+
+- **プロフィール管理** (`/profile`)
+  - ユーザー情報の表示と編集
+  - アバター画像のアップロード対応
+
+### 2. セキュリティ機能
+- **Row Level Security (RLS)**
+  - ユーザーは自分のデータのみアクセス可能
+  - データベースレベルでのアクセス制御
+
+- **サーバーサイド認証**
+  - Server Componentsを活用した安全な認証チェック
+  - Data Access Layer (DAL)パターンの実装
+
+## プロジェクト構造
 
 ```
 nano-banana-demo/
 ├── app/                    # Next.js App Router
+│   ├── auth/              # 認証関連ページ
+│   │   ├── login/         # ログインページ
+│   │   ├── signup/        # 新規登録ページ
+│   │   └── confirm/       # メール確認処理
+│   ├── profile/           # プロフィールページ
 │   ├── actions/           # Server Actions
-│   │   └── auth.ts       # 認証関連のアクション
-│   ├── auth/             # 認証ページ
-│   │   ├── confirm/      # メール確認
-│   │   ├── login/        # ログインページ
-│   │   └── signup/       # 新規登録ページ
-│   ├── profile/          # プロフィールページ（保護）
-│   ├── page.tsx          # ホームページ
-│   ├── layout.tsx        # ルートレイアウト
-│   └── globals.css       # グローバルスタイル
-├── components/           # Reactコンポーネント
-│   ├── LoginForm.tsx    # ログインフォーム
-│   ├── SignUpForm.tsx   # 新規登録フォーム
-│   └── UserProfile.tsx  # ユーザープロフィール表示
-├── lib/                  # ライブラリ/ユーティリティ
-│   ├── supabase/        # Supabase設定
-│   │   ├── client.ts    # クライアント用
-│   │   ├── server.ts    # サーバー用
-│   │   └── middleware.ts # ミドルウェア用
-│   └── dal.ts           # Data Access Layer
-├── doc/                  # ドキュメント
-├── public/              # 静的ファイル
-├── .env.local           # 環境変数（Supabase設定）
-├── docker-compose.yml   # Docker設定
-├── Dockerfile          # Dockerイメージ設定
-├── package.json        # プロジェクト依存関係
-├── supabase-setup.sql  # データベース初期設定
+│   └── page.tsx           # ホームページ
+├── components/            # 再利用可能なReactコンポーネント
+├── lib/                   # ユーティリティとライブラリ
+│   ├── supabase/         # Supabaseクライアント設定
+│   └── dal.ts            # データアクセス層
+├── public/               # 静的ファイル
+└── doc/                  # ドキュメント
 ```
 
-## 🔑 主要機能
+## データベース構造
 
-### 認証システム
-- **メール/パスワード認証** - Supabase Auth使用
-- **メール確認機能** - 新規登録時のメール確認
-- **Cookie-based認証** - XSS攻撃に対してLocalStorageより安全
-- **保護されたルート** - 認証が必要なページの自動リダイレクト
+### profilesテーブル
+- `id`: UUID (主キー)
+- `user_id`: UUID (auth.users への外部キー)
+- `email`: テキスト
+- `full_name`: テキスト
+- `avatar_url`: テキスト
+- `created_at`: タイムスタンプ
+- `updated_at`: タイムスタンプ
 
-### セキュリティ機能
-- **Row Level Security (RLS)** - データベースレベルでのアクセス制御
-- **Data Access Layer (DAL)** - 認証チェックの一元化
-- **Server Components** - サーバーサイドレンダリング
-- **環境変数による設定管理** - セキュアな設定管理
+## 開発環境セットアップ
 
-### データベース構造
-```sql
-profiles テーブル:
-- id: UUID (主キー)
-- user_id: UUID (auth.usersへの外部キー)
-- email: TEXT
-- full_name: TEXT
-- avatar_url: TEXT
-- created_at: TIMESTAMP
-- updated_at: TIMESTAMP
+### 必要な環境変数
+`.env.local`に以下を設定:
+```
+NEXT_PUBLIC_SUPABASE_URL=<Supabase プロジェクトURL>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<Supabase アノニマスキー>
 ```
 
-## 🚀 開発コマンド
-
+### 起動コマンド
 ```bash
 # 開発サーバー起動
 npm run dev
@@ -92,102 +92,48 @@ npm run dev
 npm run build
 
 # 本番サーバー起動
-npm run start
+npm start
 
 # Lintチェック
 npm run lint
-
-# Docker環境で起動
-docker-compose up --build
 ```
 
-## 🔧 環境変数
-
-必要な環境変数（`.env.local`）:
-```
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+### Docker起動
+```bash
+docker-compose up
 ```
 
-## 📝 API構造
+## ベストプラクティス
 
-### Server Actions (`app/actions/auth.ts`)
-- `login(email, password)` - ログイン処理
-- `signup(email, password, fullName)` - 新規登録処理
-- `logout()` - ログアウト処理
+### コード規約
+- TypeScriptの厳密な型定義
+- React Server Componentsの活用
+- 非同期処理でのエラーハンドリング
 
-### Data Access Layer (`lib/dal.ts`)
-- `getUser()` - 現在のユーザー取得（キャッシュ付き）
-- `verifySession()` - セッション検証（リダイレクト付き）
-- `getUserProfile()` - プロフィール取得
-- `isAuthenticated()` - 認証状態確認
-- `getSession()` - セッション情報取得
+### セキュリティ
+- 環境変数による機密情報管理
+- RLSによるデータアクセス制御
+- サーバーサイドでの認証状態検証
 
-## 🎨 UIコンポーネント
+### パフォーマンス
+- Next.js Turbopackによる高速開発
+- キャッシュ戦略の実装（React cache）
+- コード分割と遅延読み込み
 
-### ページ
-- **ホームページ** (`app/page.tsx`) - ランディングページ、認証状態で表示切替
-- **ログイン** (`app/auth/login/page.tsx`) - ログインフォーム
-- **新規登録** (`app/auth/signup/page.tsx`) - 登録フォーム
-- **プロフィール** (`app/profile/page.tsx`) - 認証必須のプロフィールページ
-
-### コンポーネント
-- **LoginForm** - メール/パスワードログイン
-- **SignUpForm** - 新規登録フォーム
-- **UserProfile** - ユーザー情報表示とログアウト
-
-## 🐳 Docker設定
-
-### Dockerfile
-- Node.js 18-alpine使用
-- マルチステージビルド
-- 本番環境最適化
-
-### docker-compose.yml
-- ポート3000でアクセス
-- 環境変数の自動読み込み
-- ボリュームマウント対応
-
-## 📊 現在のSupabase設定
-
-- **プロジェクトURL**: https://wvehraqjkvigdjhhrnre.supabase.co
-- **認証方式**: Email/Password
-- **RLSポリシー**: 有効（ユーザーは自分のデータのみアクセス可能）
-
-## 🚦 開発状況
-
-現在、3つの開発サーバーがバックグラウンドで実行中:
-- Background Bash a87779 (npm run dev)
-- Background Bash fc34bc (npm run dev)
-- Background Bash b97f12 (npm run dev)
-
-## 📌 注意事項
-
-1. **Supabase設定**
-   - メールテンプレートの確認URLパスを正しく設定する必要がある
-   - RLSポリシーが有効になっていることを確認
-
-2. **セキュリティ**
-   - `.env.local`をGitにコミットしない
-   - Service Role Keyは本番環境でのみ使用
-
-3. **開発時の注意**
-   - Turbopackを使用（高速な開発ビルド）
-   - Server Componentsを優先的に使用
-   - クライアントコンポーネントは必要最小限に
-
-## 🔄 今後の拡張可能性
-
+## 今後の開発予定
 - ソーシャルログイン対応
-- ユーザープロフィール編集機能
-- ファイルアップロード機能
-- リアルタイム機能（Supabase Realtime）
-- 多言語対応
-- テスト環境の構築
+- 多要素認証（MFA）
+- パスワードリセット機能
+- ユーザーダッシュボード
+- API Rate Limiting
+- 国際化（i18n）対応
 
-## 📚 参考リソース
+## デプロイ
+- Vercelへのワンクリックデプロイ対応
+- Docker コンテナによるセルフホスティング対応
+- 環境変数による設定の外部化
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Supabase Documentation](https://supabase.com/docs)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+## 注意事項
+- Supabaseプロジェクトのセットアップが必要
+- `supabase-setup.sql`を実行してデータベースを初期化
+- メール認証を有効にする場合はSupabaseダッシュボードで設定が必要

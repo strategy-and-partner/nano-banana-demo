@@ -24,6 +24,12 @@ export default async function Home() {
             </div>
 
             <div className="flex items-center space-x-4">
+              <a
+                href="/gemini-demo"
+                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                Gemini デモ
+              </a>
               {user ? (
                 <>
                   <span className="text-gray-600">
@@ -89,6 +95,12 @@ export default async function Home() {
                     className="block w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors"
                   >
                     プロフィールを見る
+                  </a>
+                  <a
+                    href="/gemini-demo"
+                    className="block w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Gemini APIデモを試す
                   </a>
                 </div>
               </div>
