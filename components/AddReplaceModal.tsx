@@ -75,18 +75,18 @@ export default function AddReplaceModal({ isOpen, onClose, mode, onComplete }: A
   const canProceed = description.trim().length > 0;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="p-8">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-full sm:max-w-2xl max-h-[85vh] sm:max-h-[90vh] overflow-y-auto">
+        <div className="p-4 sm:p-8">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-lg sm:text-2xl font-bold text-gray-900">
               {mode === 'add' ? '🔧 要素を追加' : '🔄 要素を置き換え'}
             </h2>
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700 p-2"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -95,15 +95,15 @@ export default function AddReplaceModal({ isOpen, onClose, mode, onComplete }: A
           <div className="space-y-6">
             {/* Description Input */}
             <div>
-              <label htmlFor="description" className="block text-lg font-medium text-gray-800 mb-3">
+              <label htmlFor="description" className="block text-base sm:text-lg font-medium text-gray-800 mb-2 sm:mb-3">
                 {mode === 'add' ? '何を追加しますか？' : '何と置き換えますか？'}
               </label>
               <textarea
                 id="description"
-                rows={3}
+                rows={2}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500 resize-none"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base text-gray-900 placeholder-gray-500 resize-none"
                 placeholder={mode === 'add'
                   ? "例: 木製のテーブル、観葉植物、アンティークの照明..."
                   : "例: 椅子を革張りのソファに、照明をシャンデリアに..."
@@ -113,11 +113,11 @@ export default function AddReplaceModal({ isOpen, onClose, mode, onComplete }: A
 
             {/* Image Upload (Optional) */}
             <div>
-              <label className="block text-lg font-medium text-gray-800 mb-3">
+              <label className="block text-base sm:text-lg font-medium text-gray-800 mb-2 sm:mb-3">
                 参考画像（任意）
               </label>
               <div
-                className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                className={`border-2 border-dashed rounded-lg p-4 sm:p-6 text-center transition-colors ${
                   isDragOver
                     ? 'border-blue-500 bg-blue-50'
                     : uploadedImage
@@ -133,7 +133,7 @@ export default function AddReplaceModal({ isOpen, onClose, mode, onComplete }: A
                     <img
                       src={uploadedImage.preview}
                       alt="Uploaded"
-                      className="max-h-32 mx-auto rounded-lg"
+                      className="max-h-24 sm:max-h-32 mx-auto rounded-lg"
                     />
                     <div className="text-sm text-green-600">✓ 参考画像がアップロードされました</div>
                     <button
@@ -156,11 +156,11 @@ export default function AddReplaceModal({ isOpen, onClose, mode, onComplete }: A
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-700 mb-2">画像をドラッグ&ドロップ</p>
-                      <p className="text-gray-500 mb-3">または</p>
+                      <p className="text-xs sm:text-sm font-medium text-gray-700 mb-2">画像をドラッグ&ドロップ</p>
+                      <p className="text-xs sm:text-base text-gray-500 mb-3">または</p>
                       <button
                         onClick={() => fileInputRef.current?.click()}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                        className="bg-blue-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-blue-600 transition-colors text-xs sm:text-sm"
                       >
                         ファイルを選択
                       </button>
@@ -179,10 +179,10 @@ export default function AddReplaceModal({ isOpen, onClose, mode, onComplete }: A
             </div>
           </div>
 
-          <div className="flex justify-between mt-8">
+          <div className="flex justify-between gap-3 mt-6 sm:mt-8">
             <button
               onClick={onClose}
-              className="px-6 py-3 rounded-lg font-medium bg-gray-300 text-gray-700 hover:bg-gray-400 transition-colors"
+              className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium bg-gray-300 text-gray-700 hover:bg-gray-400 transition-colors text-sm sm:text-base"
             >
               キャンセル
             </button>
@@ -190,7 +190,7 @@ export default function AddReplaceModal({ isOpen, onClose, mode, onComplete }: A
             <button
               onClick={handleComplete}
               disabled={!canProceed}
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+              className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium transition-colors text-sm sm:text-base ${
                 canProceed
                   ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600'
                   : 'bg-gray-200 text-gray-500 cursor-not-allowed'

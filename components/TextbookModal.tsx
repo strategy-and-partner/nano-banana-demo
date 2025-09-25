@@ -89,30 +89,30 @@ export default function TextbookModal({
   const totalCount = chapters.reduce((sum, chapter) => sum + chapter.items.length, 0);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-full sm:max-w-4xl max-h-[85vh] sm:max-h-[90vh] flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="p-6 border-b border-gray-200 flex-shrink-0">
+          <div className="p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">📖 &SPICE 教科書</h2>
+              <h2 className="text-lg sm:text-2xl font-bold text-gray-900">📖 &SPICE 教科書</h2>
               <button
                 onClick={onClose}
                 className="text-gray-500 hover:text-gray-700 p-2"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
             {/* Selection Stats and Controls */}
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="text-xs sm:text-sm text-gray-600">
                 選択中: <span className="font-medium text-blue-600">{selectedCount}</span> / {totalCount} 項目
               </div>
               <button
                 onClick={toggleAllItems}
-                className="px-4 py-2 text-sm font-medium bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
               >
                 {selectedCount === totalCount ? '全て解除' : '全て選択'}
               </button>
@@ -120,7 +120,7 @@ export default function TextbookModal({
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6">
             <div className="space-y-4">
               {chapters.map((chapter) => {
                 const chapterSelected = chapter.items.filter(item => selectedIds.has(item.id)).length;
@@ -193,7 +193,7 @@ export default function TextbookModal({
           </div>
 
           {/* Footer */}
-          <div className="border-t border-gray-200 p-6 flex-shrink-0">
+          <div className="border-t border-gray-200 p-3 sm:p-6 flex-shrink-0">
             <div className="flex justify-between items-center">
               <div className="text-sm text-gray-600">
                 選択項目は「規定通りにしたがってほしい」としてプロンプトに追加されます
