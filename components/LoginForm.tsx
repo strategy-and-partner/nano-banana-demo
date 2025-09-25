@@ -91,26 +91,6 @@ export default function LoginForm() {
         </button>
       </form>
 
-      <div className="text-center">
-        <p className="text-sm text-black">
-          アカウントをお持ちでない方は{' '}
-          <a
-            href="/auth/signup"
-            className="font-medium text-blue-600 hover:text-blue-500"
-          >
-            新規登録
-          </a>
-        </p>
-      </div>
-
-      <div className="text-center">
-        <a
-          href="/auth/forgot-password"
-          className="text-sm text-blue-600 hover:text-blue-500"
-        >
-          パスワードをお忘れですか？
-        </a>
-      </div>
     </div>
   )
 }

@@ -1,9 +1,15 @@
 import { getUser } from '@/lib/dal'
 import Image from "next/image";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
   // Check if user is authenticated
   const user = await getUser()
+
+  // If user is logged in, redirect to gemini-demo
+  if (user) {
+    redirect('/gemini-demo')
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -20,20 +26,20 @@ export default async function Home() {
                 priority
                 className="dark:invert"
               />
-              <span className="text-xl font-bold text-gray-900">MVPデモ</span>
+              <span className="text-xl font-bold text-gray-900">🏪 レストランデザインAI</span>
             </div>
 
             <div className="flex items-center space-x-4">
-              <a
+              {/* <a
                 href="/gemini-demo"
                 className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 Gemini デモ
-              </a>
+              </a> */}
               {user ? (
                 <>
                   <span className="text-gray-600">
-                    ようこそ、{user.email?.split('@')[0]}さん！
+                    ようこそ！
                   </span>
                   <a
                     href="/profile"
@@ -50,12 +56,6 @@ export default async function Home() {
                   >
                     ログイン
                   </a>
-                  <a
-                    href="/auth/signup"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    新規登録
-                  </a>
                 </>
               )}
             </div>
@@ -67,12 +67,12 @@ export default async function Home() {
       <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl">
-            Next.js + Supabase
-            <span className="block text-blue-600">MVPテンプレート</span>
+            AIで理想の店舗デザインを
+            <span className="block text-purple-600">瞬時に生成</span>
           </h1>
           <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-            Next.js 15、Supabase、Tailwind CSSを使用した本番環境対応の認証システム。
-            エンタープライズグレードのセキュリティと2025年のベストプラクティスで構築。
+            Google Gemini AIを活用し、飲食店の内装デザインを効率的に生成・編集。
+            &SPICE教科書の規定に基づいた、プロフェッショナルなデザイン提案を実現。
           </p>
 
           {user ? (
@@ -107,20 +107,20 @@ export default async function Home() {
             </div>
           ) : (
             <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-              <div className="rounded-md shadow">
+              {/* <div className="rounded-md shadow">
                 <a
                   href="/auth/signup"
                   className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10 transition-colors"
                 >
                   はじめる
                 </a>
-              </div>
-              <div className="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
+              </div> */}
+              <div className="rounded-md shadow">
                 <a
                   href="/auth/login"
-                  className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10 transition-colors"
+                  className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 md:py-4 md:text-lg md:px-10 transition-colors"
                 >
-                  ログイン
+                  ログインして開始
                 </a>
               </div>
             </div>
@@ -141,10 +141,10 @@ export default async function Home() {
                     </span>
                   </div>
                   <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">
-                    セキュアな認証
+                    AIによる画像生成
                   </h3>
                   <p className="mt-5 text-base text-gray-500">
-                    Supabaseによるクッキーベース認証、RLSポリシー、エンタープライズグレードのセキュリティ。
+                    Google Gemini 2.5を活用し、テキストと画像から理想のレストランデザインを瞬時に生成。
                   </p>
                 </div>
               </div>
@@ -161,10 +161,10 @@ export default async function Home() {
                     </span>
                   </div>
                   <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">
-                    高速設計
+                    インテリジェントな編集
                   </h3>
                   <p className="mt-5 text-base text-gray-500">
-                    Next.js 15、App Router、サーバーコンポーネント、Tailwind CSS v4を採用。
+                    料理ジャンル、雰囲気、要素の追加・置き換えなど、きめ細かなデザイン調整が可能。
                   </p>
                 </div>
               </div>
@@ -181,10 +181,10 @@ export default async function Home() {
                     </span>
                   </div>
                   <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">
-                    本番環境対応
+                    プロの規定準拠
                   </h3>
                   <p className="mt-5 text-base text-gray-500">
-                    Dockerサポート、2025年のベストプラクティス、デプロイ準備完了。
+                    &SPICE教科書の51項目の規定に基づき、実務レベルの店舗設計要件に対応。
                   </p>
                 </div>
               </div>
