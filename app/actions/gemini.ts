@@ -21,7 +21,7 @@ const ai = new GoogleGenAI({
 
 export async function createChatSession(): Promise<string> {
   const chat = ai.chats.create({
-    model: "gemini-2.5-flash-image-preview",
+    model: "gemini-3-pro-image-preview",
   });
   const sessionId = crypto.randomUUID();
   chatSessions.set(sessionId, chat);
