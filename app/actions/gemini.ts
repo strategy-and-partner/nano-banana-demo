@@ -1,6 +1,7 @@
 'use server'
 
 import { GoogleGenAI, Chat, PartListUnion } from "@google/genai";
+import { checkGenerationQuota, incrementGenerationCount } from '@/lib/dal';
 
 interface ImageData {
   mimeType: string;
@@ -26,6 +27,15 @@ export async function createChatSession(): Promise<string> {
   const sessionId = crypto.randomUUID();
   chatSessions.set(sessionId, chat);
   return sessionId;
+}
+
+export async function getQuotaInfo() {
+  const quota = await checkGenerationQuota();
+  return {
+    remaining: quota.remaining,
+    allowed: quota.allowed,
+    resetAt: quota.resetAt
+  };
 }
 
 interface DesignPreferences {
@@ -65,6 +75,18 @@ export async function generateRestaurantDesign(
   preferences: DesignPreferences,
   originalImage: ImageData
 ) {
+  // Check generation quota before processing
+  const quota = await checkGenerationQuota();
+  if (!quota.allowed) {
+    return {
+      success: false,
+      error: '本日の画像生成上限（20回）に達しました。明日00:00（日本時間）にリセットされます。',
+      quotaExceeded: true,
+      resetAt: quota.resetAt,
+      remaining: 0
+    };
+  }
+
   try {
     const chat = chatSessions.get(sessionId);
     if (!chat) {
@@ -91,6 +113,8 @@ export async function generateRestaurantDesign(
       image: null as string | null
     };
 
+    let hasGeneratedImage = false;
+
     if (response.candidates && response.candidates[0]) {
       const candidate = response.candidates[0];
       if (candidate.content && candidate.content.parts) {
@@ -101,14 +125,24 @@ export async function generateRestaurantDesign(
             result.text = part.text;
           } else if (part.inlineData && part.inlineData.mimeType && part.inlineData.data) {
             result.image = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+            hasGeneratedImage = true;
           }
         }
       }
     }
 
+    // Only increment count if an image was actually generated
+    if (hasGeneratedImage) {
+      await incrementGenerationCount();
+    }
+
+    // Get updated quota info
+    const updatedQuota = await checkGenerationQuota();
+
     return {
       success: true,
-      data: result
+      data: result,
+      remaining: updatedQuota.remaining
     };
   } catch (error) {
     console.error('Gemini API error:', error);
@@ -120,6 +154,18 @@ export async function generateRestaurantDesign(
 }
 
 export async function generateImage(sessionId: string, prompt: string, images?: ImageData[]) {
+  // Check generation quota before processing
+  const quota = await checkGenerationQuota();
+  if (!quota.allowed) {
+    return {
+      success: false,
+      error: '本日の画像生成上限（20回）に達しました。明日00:00（日本時間）にリセットされます。',
+      quotaExceeded: true,
+      resetAt: quota.resetAt,
+      remaining: 0
+    };
+  }
+
   try {
     const chat = chatSessions.get(sessionId);
     if (!chat) {
@@ -152,6 +198,8 @@ export async function generateImage(sessionId: string, prompt: string, images?: 
       image: null as string | null
     };
 
+    let hasGeneratedImage = false;
+
     if (response.candidates && response.candidates[0]) {
       const candidate = response.candidates[0];
       if (candidate.content && candidate.content.parts) {
@@ -162,14 +210,24 @@ export async function generateImage(sessionId: string, prompt: string, images?: 
             result.text = part.text;
           } else if (part.inlineData && part.inlineData.mimeType && part.inlineData.data) {
             result.image = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+            hasGeneratedImage = true;
           }
         }
       }
     }
 
+    // Only increment count if an image was actually generated
+    if (hasGeneratedImage) {
+      await incrementGenerationCount();
+    }
+
+    // Get updated quota info
+    const updatedQuota = await checkGenerationQuota();
+
     return {
       success: true,
-      data: result
+      data: result,
+      remaining: updatedQuota.remaining
     };
   } catch (error) {
     console.error('Gemini API error:', error);

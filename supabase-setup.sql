@@ -84,3 +84,46 @@ COMMENT ON COLUMN profiles.user_id IS 'Foreign key to auth.users.id';
 COMMENT ON COLUMN profiles.email IS 'User email address (synced from auth.users)';
 COMMENT ON COLUMN profiles.full_name IS 'User full name';
 COMMENT ON COLUMN profiles.avatar_url IS 'URL to user avatar image';
+
+-- Add image generation quota columns
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS daily_generation_count INTEGER DEFAULT 0;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS last_generation_date DATE;
+
+COMMENT ON COLUMN profiles.daily_generation_count IS '本日の画像生成回数（0-20）';
+COMMENT ON COLUMN profiles.last_generation_date IS '最後に画像生成した日付（JST基準）';
+
+-- Function to get current date in JST timezone
+CREATE OR REPLACE FUNCTION get_jst_current_date()
+RETURNS DATE AS $$
+BEGIN
+  RETURN (NOW() AT TIME ZONE 'Asia/Tokyo')::DATE;
+END;
+$$ LANGUAGE plpgsql STABLE;
+
+-- Function to increment generation count with automatic daily reset
+CREATE OR REPLACE FUNCTION increment_generation_count(p_user_id UUID)
+RETURNS VOID AS $$
+DECLARE
+  v_today DATE;
+BEGIN
+  v_today := get_jst_current_date();
+
+  -- Update with automatic reset if date has changed
+  UPDATE profiles
+  SET
+    daily_generation_count = CASE
+      WHEN last_generation_date = v_today THEN daily_generation_count + 1
+      ELSE 1  -- Reset to 1 if it's a new day
+    END,
+    last_generation_date = v_today,
+    updated_at = NOW()
+  WHERE user_id = p_user_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Grant permissions for the new functions
+GRANT EXECUTE ON FUNCTION get_jst_current_date() TO authenticated;
+GRANT EXECUTE ON FUNCTION increment_generation_count(UUID) TO authenticated;
+
+COMMENT ON FUNCTION get_jst_current_date() IS 'Get current date in Asia/Tokyo timezone';
+COMMENT ON FUNCTION increment_generation_count(UUID) IS 'Increment daily image generation count for a user (auto-resets daily at JST midnight)';

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { generateImage, generateRestaurantDesign, createChatSession } from '@/app/actions/gemini';
+import { generateImage, generateRestaurantDesign, createChatSession, getQuotaInfo } from '@/app/actions/gemini';
 import RestaurantDesignModal from '@/components/RestaurantDesignModal';
 import AddReplaceModal from '@/components/AddReplaceModal';
 import TextbookModal from '@/components/TextbookModal';
@@ -91,6 +91,16 @@ export default function GeminiDemoClient() {
   const [showTextbookModal, setShowTextbookModal] = useState(false);
   const [selectedTextbookItems, setSelectedTextbookItems] = useState<TextbookItem[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [quotaRemaining, setQuotaRemaining] = useState<number>(20);
+
+  const fetchQuotaInfo = async () => {
+    try {
+      const quota = await getQuotaInfo();
+      setQuotaRemaining(quota.remaining);
+    } catch (err) {
+      console.error('Failed to fetch quota info:', err);
+    }
+  };
 
   const initializeSession = async () => {
     setIsInitializing(true);
@@ -98,6 +108,8 @@ export default function GeminiDemoClient() {
     try {
       const newSessionId = await createChatSession();
       setSessionId(newSessionId);
+      // クォータ情報を取得
+      await fetchQuotaInfo();
       // セッション初期化完了後にモーダルを表示
       setShowRestaurantModal(true);
     } catch (err) {
@@ -193,6 +205,13 @@ export default function GeminiDemoClient() {
 
         setChatMessages([initialMessage]);
         setHasCompletedInitialDesign(true);
+
+        // Update quota remaining
+        if (response.remaining !== undefined) {
+          setQuotaRemaining(response.remaining);
+        }
+      } else if (response.quotaExceeded) {
+        setError(response.error || '画像生成の上限に達しました');
       } else {
         setError(response.error || 'デザイン生成に失敗しました');
       }
@@ -239,6 +258,13 @@ export default function GeminiDemoClient() {
         };
 
         setChatMessages(prev => [...prev, assistantMessage]);
+
+        // Update quota remaining
+        if (response.remaining !== undefined) {
+          setQuotaRemaining(response.remaining);
+        }
+      } else if (response.quotaExceeded) {
+        setError(response.error || '画像生成の上限に達しました');
       } else {
         setError(response.error || 'Failed to generate image');
       }
@@ -283,6 +309,13 @@ export default function GeminiDemoClient() {
         };
 
         setChatMessages(prev => [...prev, assistantMessage]);
+
+        // Update quota remaining
+        if (response.remaining !== undefined) {
+          setQuotaRemaining(response.remaining);
+        }
+      } else if (response.quotaExceeded) {
+        setError(response.error || '画像生成の上限に達しました');
       } else {
         setError(response.error || 'Failed to generate image');
       }
@@ -352,6 +385,13 @@ export default function GeminiDemoClient() {
         // Clear input
         setPrompt("");
         setUploadedImages([]);
+
+        // Update quota remaining
+        if (response.remaining !== undefined) {
+          setQuotaRemaining(response.remaining);
+        }
+      } else if (response.quotaExceeded) {
+        setError(response.error || '画像生成の上限に達しました');
       } else {
         setError(response.error || 'Failed to send message');
       }
@@ -428,7 +468,13 @@ export default function GeminiDemoClient() {
                 <p className="text-xs text-white/60 mt-0.5 hidden sm:block">飲食店のデザインを効率的に生成・編集</p>
               </div>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="text-white/90 text-xs sm:text-sm">
+                <span className="font-medium">残り生成回数:</span>{' '}
+                <span className={`font-bold ${quotaRemaining === 0 ? 'text-red-300' : 'text-green-300'}`}>
+                  {quotaRemaining}/20
+                </span>
+              </div>
               <Link
                 href="/"
                 className="text-white/80 hover:text-white px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all hover:bg-white/10"
@@ -672,20 +718,29 @@ export default function GeminiDemoClient() {
                         : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
                     }`}
                   >
-                    {isLoading ? (
-                      <div className="flex items-center space-x-1 sm:space-x-2">
-                        <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
-                        <span>送信中...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-1 sm:space-x-2">
-                        <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                        </svg>
-                        <span>送信</span>
-                      </div>
-                    )}
+                  {isLoading ? (
+                    <div className="flex items-center space-x-1 sm:space-x-2">
+                      <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
+                      <span>送信中...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-1 sm:space-x-2">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                      </svg>
+                      <span>送信</span>
+                    </div>
+                  )}
                   </button>
+                </div>
+
+                <div className="flex items-center justify-center px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg border border-purple-200">
+                  <div className="text-center">
+                    <span className="text-xs text-purple-700 font-medium">残り生成回数</span>
+                    <div className={`text-lg sm:text-xl font-bold ${quotaRemaining === 0 ? 'text-red-600' : 'text-purple-600'}`}>
+                      {quotaRemaining} / 20
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
